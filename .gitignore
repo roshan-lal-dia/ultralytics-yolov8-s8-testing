@@ -5,6 +5,8 @@
 /runs
 #model file
 *.pt
+#cv device check captures
+*_frame.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
