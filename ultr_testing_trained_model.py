@@ -16,12 +16,12 @@ while True:
     # Perform object detection on the frame
     results = model.predict(frame)
 
-# Draw the detection results on the frame
-for i in range(len(results)):
-    xywhcn = results[i]
-    x, y, w, h, class_name, confidence = xywhcn
-    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+    # Draw the detection results on the frame
+    for i in range(len(results)):
+        xywhcn = results[i]
+        x, y, w, h, class_name, confidence = xywhcn
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
     # Display the frame
     cv2.imshow('Object Detection', frame)
