@@ -1,3 +1,4 @@
+#Model training using Ultralytics YOLOv8
 from ultralytics import YOLO
 
 # Create a new YOLO model from scratch
