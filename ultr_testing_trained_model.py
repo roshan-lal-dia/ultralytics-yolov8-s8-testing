@@ -20,7 +20,7 @@ while True:
 
     # Perform object detection on the frame
     results = model.predict(frame)
-    #add some delay
+    #add some delay not here but for each prediction, below is the logic so definitely not here 
 
     # Draw the detection results on the frame
     for r in results:
