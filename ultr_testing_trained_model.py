@@ -7,7 +7,7 @@ from ultralytics import YOLO
 model = YOLO('yolov8n.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Open the webcam
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 while True:
     # Read a frame from the webcam
@@ -19,6 +19,8 @@ while True:
     # Draw the detection results on the frame
     for i in range(len(results)):
         xywhcn = results[i]
+        #print(xywhcn)
+        print(results[0])
         x, y, w, h, class_name, confidence = xywhcn
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         cv2.putText(frame, class_name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
