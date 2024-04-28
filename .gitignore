@@ -1,5 +1,10 @@
-#ignore venv folder
+#ignore project speicific folder
+#venv files
 /testing-pytorch-ultr-v8
+#yolo training files
+/runs
+#model file
+*.pt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
