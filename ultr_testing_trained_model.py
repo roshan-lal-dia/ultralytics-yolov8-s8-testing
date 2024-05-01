@@ -6,10 +6,10 @@ from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 
 # Create a directory to save the cropped images
-os.makedirs('cropped_books', exist_ok=True)
+os.makedirs('cropped_number_plates', exist_ok=True)
 
 # Load the pretrained model
-model = YOLO('yolov8n.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
+model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Open the webcam
 cap = cv2.VideoCapture(0)
@@ -36,13 +36,13 @@ while True:
             annotator.box_label(b, model.names[int(c)])
             
 			# Check if the class name is 'book'
-            if class_name == 'book':
+            if class_name == 'number_plate':
             # Crop the detected object from the frame
                 left, top, right, bottom = map(int, b)
                 cropped = frame[top:bottom, left:right]
             
                 # Save the cropped image to a file
-                cv2.imwrite(f'cropped_books/book_{i}.jpg', cropped)
+                cv2.imwrite(f'cropped_number_plates/np_{i}.jpg', cropped)
 
     # Display the frame
     cv2.imshow('Object Detection', frame)

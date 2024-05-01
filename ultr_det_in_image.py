@@ -13,7 +13,7 @@ os.makedirs('cropped_number_plates', exist_ok=True)
 model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Load the image from file
-image_path = 'detect_test.jpg'
+image_path = 'detect_2test.jpg'
 frame = cv2.imread(image_path)
 
 # Perform object detection on the image
