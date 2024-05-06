@@ -19,7 +19,7 @@ os.makedirs('cropped_number_plates', exist_ok=True)
 model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Load the image from file
-image_path = 'detect_test.jpg'
+image_path = 'detect_3test.jpg'
 frame = cv2.imread(image_path)
 
 # Perform object detection on the image
@@ -27,6 +27,9 @@ results = model.predict(frame)
 
 # Initialize prev_boxes as an empty list
 prev_boxes = []
+
+# Initialize a dictionary to store the last detection time for each rider
+last_detection_time = {}
 
 # Draw the detection results on the image
 for r in results:
@@ -42,20 +45,42 @@ for r in results:
         if class_name == 'rider':
             # Check if the rider is the same as in the previous frame
             if i < len(prev_boxes) and jaccard_score(b, prev_boxes[i]) > 0.5:
-                continue
+                # Check if the current timestamp is within the cooldown period
+                if time.time() - last_detection_time.get(i, 0) < 3:
+                    continue
+                else:
+                    # Update the last detection time for this rider
+                    last_detection_time[i] = time.time()
 
             # Initialize a list to store violations
             violations = []
 
             # Check for violations
             for violation in ['cellphone', 'triple_riding']:
-                if violation in [model.names[int(box.cls)] for box in boxes]:
+                violation_boxes = [box for box in boxes if model.names[int(box.cls)] == violation]
+                if violation_boxes:
                     violations.append(violation)
+                    for i, box in enumerate(violation_boxes):
+                        # Crop the detected object from the image
+                        left, top, right, bottom = map(int, box.xyxy[0])
+                        cropped = frame[top:bottom, left:right]
+
+                        # Save the cropped image to a file
+                        img_path = f'cropped_violations/{violation}_{i}.jpg'
+                        cv2.imwrite(img_path, cropped)
 
             # Check for 'without_helmet' violation
-            helmet_violations = [model.names[int(box.cls)] for box in boxes if model.names[int(box.cls)] in ['with_helmet', 'without_helmet']]
-            if len(helmet_violations) >= 1:
+            helmet_violations = [box for box in boxes if model.names[int(box.cls)] == 'without_helmet']
+            if helmet_violations:
                 violations.append('without_helmet')
+                for i, box in enumerate(helmet_violations):
+                    # Crop the detected object from the image
+                    left, top, right, bottom = map(int, box.xyxy[0])
+                    cropped = frame[top:bottom, left:right]
+
+                    # Save the cropped image to a file
+                    img_path = f'cropped_violations/without_helmet_{i}.jpg'
+                    cv2.imwrite(img_path, cropped)
 
             # If any violations are detected, crop the 'number_plate'
             if violations:
@@ -72,9 +97,6 @@ for r in results:
                         # Run OCR on the cropped image
                         config = '--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
                         license_plate_number = pytesseract.image_to_string(cropped, config=config)
-                        
-                        # Remove any unwanted symbols from the string
-                        license_plate_number = license_plate_number.translate(str.maketrans('', '', string.punctuation))
 
                         # Convert the timestamp to a human-readable format
                         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
