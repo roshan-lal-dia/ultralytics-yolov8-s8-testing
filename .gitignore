@@ -11,6 +11,8 @@
 /cropped*
 #testing_images
 *test.jpg
+#flat file database
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

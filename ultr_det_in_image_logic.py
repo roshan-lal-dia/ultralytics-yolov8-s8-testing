@@ -3,13 +3,10 @@ import time
 import pytesseract
 import os
 import datetime
-import string
 import cv2
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 from sklearn.metrics import jaccard_score
-
-# Testing the trained model .pt using opencv
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 # Create a directory to save the cropped images
@@ -19,7 +16,7 @@ os.makedirs('cropped_number_plates', exist_ok=True)
 model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Load the image from file
-image_path = 'detect_3test.jpg'
+image_path = 'detect_test.jpg'
 frame = cv2.imread(image_path)
 
 # Perform object detection on the image
