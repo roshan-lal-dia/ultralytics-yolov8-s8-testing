@@ -7,7 +7,6 @@ import cv2
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 import numpy as np
-from sklearn.metrics import jaccard_score
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 # Create a directory to save the cropped images
