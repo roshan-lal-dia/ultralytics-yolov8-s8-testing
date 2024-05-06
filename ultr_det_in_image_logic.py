@@ -2,6 +2,8 @@ import csv
 import time
 import pytesseract
 import os
+import datetime
+import string
 import cv2
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
@@ -17,11 +19,14 @@ os.makedirs('cropped_number_plates', exist_ok=True)
 model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
 
 # Load the image from file
-image_path = 'detect_2test.jpg'
+image_path = 'detect_test.jpg'
 frame = cv2.imread(image_path)
 
 # Perform object detection on the image
 results = model.predict(frame)
+
+# Initialize prev_boxes as an empty list
+prev_boxes = []
 
 # Draw the detection results on the image
 for r in results:
@@ -65,8 +70,14 @@ for r in results:
                         cv2.imwrite(img_path, cropped)
 
                         # Run OCR on the cropped image
-                        config = '--oem 3 --psm 6'
+                        config = '--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
                         license_plate_number = pytesseract.image_to_string(cropped, config=config)
+                        
+                        # Remove any unwanted symbols from the string
+                        license_plate_number = license_plate_number.translate(str.maketrans('', '', string.punctuation))
+
+                        # Convert the timestamp to a human-readable format
+                        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
                         # Write the violation data to a CSV file
                         csv_file = 'violations.csv'
@@ -75,7 +86,7 @@ for r in results:
                             writer = csv.writer(f)
                             if not file_exists:
                                 writer.writerow(['Timestamp', 'Violations', 'Image Path', 'License Plate Number'])
-                            writer.writerow([time.time(), violations, img_path, license_plate_number])
+                            writer.writerow([timestamp, violations, img_path, license_plate_number])
 
     # Update the previous boxes
     prev_boxes = [box.xyxy[0] for box in boxes]
