@@ -90,6 +90,11 @@ for r in results:
                         img_path = f'cropped_number_plates/np_{i}.jpg'
                         cv2.imwrite(img_path, cropped)
 
+                        # Preprocess the cropped image for better OCR results
+                        gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+                        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+                        thresholded = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+                        
                         # Run OCR on the cropped image using EasyOCR
                         reader = easyocr.Reader(['en'])
                         result = reader.readtext(cropped)

@@ -3,10 +3,30 @@ import time
 import pytesseract
 import os
 import datetime
+import numpy as np
 import cv2
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 from sklearn.metrics import jaccard_score
+from PIL import Image, ExifTags
+
+def auto_orient(image):
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        exif = dict(image._getexif().items())
+
+        if exif[orientation] == 3:
+            image = image.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            image = image.rotate(270, expand=True)
+        elif exif[orientation] == 8:
+            image = image.rotate(90, expand=True)
+    except (AttributeError, KeyError, IndexError):
+        # cases: image don't have getexif
+        pass
+    return image
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 # Create a directory to save the cropped images
@@ -91,9 +111,17 @@ for r in results:
                         img_path = f'cropped_number_plates/np_{i}.jpg'
                         cv2.imwrite(img_path, cropped)
 
-                        # Run OCR on the cropped image
+                        # Auto-orient the cropped image
+                        rotated = auto_orient(cropped)
+
+                        # Preprocess the rotated image for better OCR results
+                        gray = cv2.cvtColor(rotated, cv2.COLOR_BGR2GRAY)
+                        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+                        thresholded = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+                        # Run OCR on the preprocessed image
                         config = '--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-                        license_plate_number = pytesseract.image_to_string(cropped, config=config)
+                        license_plate_number = pytesseract.image_to_string(thresholded, config=config)
 
                         # Convert the timestamp to a human-readable format
                         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
