@@ -10,7 +10,7 @@ from ultralytics.utils.plotting import Annotator
 os.makedirs('cropped_number_plates', exist_ok=True)
 
 # Load the pretrained model
-model = YOLO('yolo8x-s8.pt')  # replace 'yolov5.pt' with the path to your YOLOv8 model file
+model = YOLO('yolo8x-s8.pt')  # replace '' with the path to your YOLOv8 model file
 
 # Load the image from file
 image_path = 'detect_2test.jpg'
